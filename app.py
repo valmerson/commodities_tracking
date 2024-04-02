@@ -77,5 +77,3 @@ def commoditie_tracking():
 
     df_trade_final = coleta_dados_commodities(trade_sopa)
     lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
-    
-<b>O código rodou corretamente<b/>
