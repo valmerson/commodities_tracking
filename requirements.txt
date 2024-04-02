@@ -4,6 +4,6 @@ bs4
 datetime
 pytz
 randomheaders
-oauth2client.service_account
-google.oauth2.service_account
+oauth2client
+google-oauth2-tool
 gspread
