@@ -1,11 +1,9 @@
 requests
 pandas
 bs4
-BeautifulSoup
 datetime
 pytz
 randomheaders
 oauth2client.service_account
-ServiceAccountCredentials
 google.oauth2.service_account
-Credentials
+gspread
