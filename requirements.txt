@@ -1,0 +1,11 @@
+Flask
+gunicorn
+requests
+pandas
+bs4
+datetime
+pytz
+randomheaders
+oauth2client
+google-oauth2-tool
+gspread
