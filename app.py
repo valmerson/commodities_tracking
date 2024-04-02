@@ -1,50 +1,57 @@
-trade_econo=requests.get('https://tradingeconomics.com/commodities', headers=randomheaders.LoadHeader())
-if trade_econo.status_code ==200:
-    trade_html=trade_econo.content
-    trade_sopa=BeautifulSoup(trade_html)
-    print("A requisição foi concluída com sucesso")
-else: 
-    print(f"A requisição retornou o erro: {trade_econo.status_code}")   
-def limpa_texto(text):
-    return text.replace('\r', '').replace('\n', '').strip()
+from flask import Flask
+import requests
+import pandas as pd
+from bs4 import BeautifulSoup
+import datetime
+import pytz
+import randomheaders
+from oauth2client.service_account import ServiceAccountCredentials
+import gspread
+from google.oauth2.service_account import Credentials
 
-def coleta_dados_commodities(trade_sopa):
-    trade_total = trade_sopa.findAll('div', {'class': 'col-xl-12'})
-    trade_total_string = trade_total[0]
-    trade_headers = trade_total_string.find('tr')
-    headers = limpa_texto(trade_headers.text)
+app = Flask(__name__)
 
-    trade_elemento = trade_total_string.findAll('td', {'class': 'datatable-item-first'})
-    trade_elemento_total = [limpa_texto(elemento.find('b').text) for elemento in trade_elemento]
+@app.route("/commoditiestracking", methods=["POST"])
+def commoditie_tracking():
+    def limpa_texto(text):
+     return text.replace('\r', '').replace('\n', '').strip()
+    def coleta_dados_commodities(trade_sopa):
+     trade_total = trade_sopa.findAll('div', {'class': 'col-xl-12'})
+     trade_total_string = trade_total[0]
+     trade_headers = trade_total_string.find('tr')
+     headers = limpa_texto(trade_headers.text)
 
-    trade_preco = trade_total_string.find_all('td', id='p')
-    trade_preco_total = [limpa_texto(preco.get_text()) for preco in trade_preco]
+     trade_elemento = trade_total_string.findAll('td', {'class': 'datatable-item-first'})
+     trade_elemento_total = [limpa_texto(elemento.find('b').text) for elemento in trade_elemento]
 
-    trade_day = trade_total_string.find_all('td', id='nch')
-    trade_day_total = [limpa_texto(day.get_text()) for day in trade_day]
+     trade_preco = trade_total_string.find_all('td', id='p')
+     trade_preco_total = [limpa_texto(preco.get_text()) for preco in trade_preco]
 
-    trade_percent = trade_total_string.find_all('td', id='pch')
-    trade_percent_total = [limpa_texto(percent.get_text()) for percent in trade_percent]
+     trade_day = trade_total_string.find_all('td', id='nch')
+     trade_day_total = [limpa_texto(day.get_text()) for day in trade_day]
 
-    trade_period = trade_total_string.find_all('td', {'class': 'datatable-item datatable-heatmap'})
-    trade_period_total = [limpa_texto(period.get_text()) for period in trade_period]
+     trade_percent = trade_total_string.find_all('td', id='pch')
+     trade_percent_total = [limpa_texto(percent.get_text()) for percent in trade_percent]
 
-    trade_weekly_total = [trade_period_total[i] for i in range(0, len(trade_period_total), 3)]
-    trade_monthly_total = [trade_period_total[i] for i in range(1, len(trade_period_total), 3)]
-    trade_yoy_total = [trade_period_total[i] for i in range(2, len(trade_period_total), 3)]
+     trade_period = trade_total_string.find_all('td', {'class': 'datatable-item datatable-heatmap'})
+     trade_period_total = [limpa_texto(period.get_text()) for period in trade_period]
 
-    trade_date = trade_total_string.find_all('td', id='date')
-    trade_date_total = [limpa_texto(date.get_text()) for date in trade_date]
+     trade_weekly_total = [trade_period_total[i] for i in range(0, len(trade_period_total), 3)]
+     trade_monthly_total = [trade_period_total[i] for i in range(1, len(trade_period_total), 3)]
+     trade_yoy_total = [trade_period_total[i] for i in range(2, len(trade_period_total), 3)]
 
-    trade_area = ['Energy'] * 14 + ['Metals'] * 9 + ['Agricultural'] * 22 + ['Industrial'] * 26 + ['Livestock'] * 8 + ['Index'] * 9 + ['Electricity'] * 5
+     trade_date = trade_total_string.find_all('td', id='date')
+     trade_date_total = [limpa_texto(date.get_text()) for date in trade_date]
 
-    trade_unit = trade_total_string.findAll('div', style='font-size: 10px;')
-    trade_unit_total = [limpa_texto(unit.get_text()) for unit in trade_unit]
+     trade_area = ['Energy'] * 14 + ['Metals'] * 9 + ['Agricultural'] * 22 + ['Industrial'] * 26 + ['Livestock'] * 8 + ['Index'] * 9 + ['Electricity'] * 5
 
-    br_time = pytz.timezone('America/Sao_Paulo')
-    collection_date = datetime.datetime.now(br_time)
+     trade_unit = trade_total_string.findAll('div', style='font-size: 10px;')
+     trade_unit_total = [limpa_texto(unit.get_text()) for unit in trade_unit]
 
-    df_trade_final = pd.DataFrame({
+     br_time = pytz.timezone('America/Sao_Paulo')
+     collection_date = datetime.datetime.now(br_time)
+
+     df_trade_final = pd.DataFrame({
         'Market Area': trade_area,
         'Element': trade_elemento_total,
         'Unit': trade_unit_total,
@@ -56,7 +63,17 @@ def coleta_dados_commodities(trade_sopa):
         'YoY %': trade_yoy_total,
         'Date': trade_date_total,
         'Scraping Date': collection_date
-    })
+        })
 
-    return df_trade_final
+     return df_trade_final
+    
+    trade_econo=requests.get('https://tradingeconomics.com/commodities', headers=randomheaders.LoadHeader())
+    if trade_econo.status_code ==200:
+     trade_html=trade_econo.content
+     trade_sopa=BeautifulSoup(trade_html)
+     print("A requisição foi concluída com sucesso")
+    else: 
+     print(f"A requisição retornou o erro: {trade_econo.status_code}") 
 
+    df_trade_final = coleta_dados_commodities(trade_sopa)
+    lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
