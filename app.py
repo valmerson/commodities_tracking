@@ -77,3 +77,11 @@ def commoditie_tracking():
 
     df_trade_final = coleta_dados_commodities(trade_sopa)
     lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
+ 
+    credencial=("api_google_sheets")
+    conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
+    API_acesso= gspread.authorize(conta_servico)
+    table = API_acesso.open_by_key("google_sheets_id")
+    sheet_id= table.worksheet("commodities")
+
+    sheet_id.append_rows(lista_dados_final)
