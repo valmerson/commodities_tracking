@@ -66,7 +66,7 @@ def commoditie_tracking():
         })
 
      return df_trade_final
-    
+     
     trade_econo=requests.get('https://tradingeconomics.com/commodities', headers=randomheaders.LoadHeader())
     if trade_econo.status_code ==200:
      trade_html=trade_econo.content
@@ -77,11 +77,70 @@ def commoditie_tracking():
 
     df_trade_final = coleta_dados_commodities(trade_sopa)
     lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
- 
+
     credencial=("api_google_sheets")
     conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
     API_acesso= gspread.authorize(conta_servico)
     table = API_acesso.open_by_key("google_sheets_id")
     sheet_id= table.worksheet("commodities")
 
-    sheet_id.append_rows(lista_dados_final)
+    ultimo_elemento = lista_dados_final[-1][-1]
+
+    # Template HTML com o último elemento incluído dinamicamente
+    html_template = f"""
+    <!DOCTYPE html>
+      <html lang="pt-br">
+       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Commodities Tracking: Control Tower</title>
+       </head>
+       <body>F
+        <h1>Último Momento:</h1>
+         <p>{ultimo_elemento}</p>
+       </body>
+       </html>
+       """
+
+# html = """
+# <!DOCTYPE html>
+# <html>
+#   <head>
+#     <title>Commodities Tracheing </title>
+#   </head>
+#   <body>
+#     <h1>Ronda Estadão</h1>
+#     <p>
+#       As matérias encontradas foram:
+#       <ul>
+# """
+# for materia in materias_home_estadao():
+#     palavras = normaliza(materia["titulo"]).split(" ")
+#     if "dengue" in palavras or "lula" in palavras or "bolsonaro" in palavras:
+#         html += f'<li> <a href="{materia["url"]}">{materia["titulo"]}</a> </li>'
+# html += """
+#       </ul>
+#     </p>
+#   </body>
+# </html>
+# """
+
+
+# # Pegar o último elemento da lista
+# ultimo_elemento = lista_dados_final[-1]
+
+# # Template HTML com o último elemento incluído dinamicamente
+# html_template = f"""
+# <!DOCTYPE html>
+# <html lang="pt-br">
+# <head>
+#     <meta charset="UTF-8">
+#     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#     <title>Commodities Tracking: Control Tower</title>
+# </head>
+# <body>
+#     <h1>Último Momento:</h1>
+#     <p>{ultimo_elemento}</p>
+# </body>
+# </html>
+# """
