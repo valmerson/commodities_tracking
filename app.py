@@ -8,6 +8,9 @@ import randomheaders
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 from google.oauth2.service_account import Credentials
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
@@ -15,6 +18,7 @@ app = Flask(__name__)
 def commoditie_tracking():
     def limpa_texto(text):
      return text.replace('\r', '').replace('\n', '').strip()
+    
     def coleta_dados_commodities(trade_sopa):
      trade_total = trade_sopa.findAll('div', {'class': 'col-xl-12'})
      trade_total_string = trade_total[0]
@@ -76,71 +80,79 @@ def commoditie_tracking():
      print(f"A requisição retornou o erro: {trade_econo.status_code}") 
 
     df_trade_final = coleta_dados_commodities(trade_sopa)
+    df_trade_final['Scraping Date'] = df_trade_final['Scraping Date'].astype(str)
     lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
 
-    credencial=("api_google_sheets")
+    credencial=("/etc/secrets/api_google_sheets")
     conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
     API_acesso= gspread.authorize(conta_servico)
     table = API_acesso.open_by_key("google_sheets_id")
     sheet_id= table.worksheet("commodities")
 
-    ultimo_elemento = lista_dados_final[-1][-1]
+    sheet_id.append_rows(lista_dados_final)
 
-    # Template HTML com o último elemento incluído dinamicamente
-    html_template = f"""
+    # Dados para conexão no servidor SMTP:
+    smtp_server = "smtp-relay.brevo.com"
+    port = 587
+    email = email_key 
+    password = "brevo_credential"
+
+    
+    remetente = email_key  
+    destinatarios = [professional_email_key,email_key]  
+    titulo = "Weekly Commodities Price Tracking Status - Aralhon"
+    html = """
     <!DOCTYPE html>
-      <html lang="pt-br">
-       <head>
+    <html>
+      <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Commodities Tracking: Control Tower</title>
-       </head>
-       <body>F
-        <h1>Último Momento:</h1>
-         <p>{ultimo_elemento}</p>
-       </body>
-       </html>
+        <title>Commodities Tracking</title>
+      </head>
+    <body>
+      <h1>Commodities Price tracking</h1>
+      <p>
+       The last data collection worked! Your most recent data is: 
+      
        """
+    ultimo_elemento = lista_dados_final[-1][-1]
+    html += f'<p> <b> {ultimo_elemento} <b/> </p>'
 
-# html = """
-# <!DOCTYPE html>
-# <html>
-#   <head>
-#     <title>Commodities Tracheing </title>
-#   </head>
-#   <body>
-#     <h1>Ronda Estadão</h1>
-#     <p>
-#       As matérias encontradas foram:
-#       <ul>
-# """
-# for materia in materias_home_estadao():
-#     palavras = normaliza(materia["titulo"]).split(" ")
-#     if "dengue" in palavras or "lula" in palavras or "bolsonaro" in palavras:
-#         html += f'<li> <a href="{materia["url"]}">{materia["titulo"]}</a> </li>'
-# html += """
-#       </ul>
-#     </p>
-#   </body>
-# </html>
-# """
+    selected_values_mail=[]
+    for lista in lista_dados_final:
+     selected_values=lista[1:4]
+     selected_values_mail.append(selected_values)
+
+    html += f' <ul> <p> See below the main up-to-date prices from the international commodities market:</p>'
+    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[0][0]}, <b>Currency/Unit: </b>{selected_values_mail[0][1]}, <b>Price: </b>{selected_values_mail[0][2]} </p>' 
+    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[1][0]}, <b>Currency/Unit: </b>{selected_values_mail[1][1]}, <b>Price: </b>{selected_values_mail[1][2]} </p>'
+    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[2][0]}, <b>Currency/Unit: </b>{selected_values_mail[2][1]}, <b>Price: </b>{selected_values_mail[2][2]} </p>'
+    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[3][0]}, <b>Currency/Unit: </b>{selected_values_mail[3][1]}, <b>Price: </b>{selected_values_mail[3][2]} </p>'
+    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[4][0]}, <b>Currency/Unit: </b>{selected_values_mail[4][1]}, <b>Price: </b>{selected_values_mail[4][2]} </ul></p>'
+    html += f'<p> <b>Source: </b> Trade Economics </p>'
+    html += f'<p> To have access to the full data base including all the updated commodities price information, request access to: "https://docs.google.com/spreadsheets/d/1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E/edit#gid=0"</p>'
+    html += f'<p>Kindest Regards</p>'
+    html += f'<p>Valmerson Silva</p>'  
+    html += f'<p>BMI LATAM Team</p>'
+
+    html += """
+       </p>
+    </body>
+    </html>
+    """
+
+    server = smtplib.SMTP(smtp_server, port) 
+    server.starttls()  
+    server.login(email, password) 
+
+    mensagem = MIMEMultipart()
+    mensagem["From"] = remetente
+    mensagem["To"] = ",".join(destinatarios)
+    mensagem["Subject"] = titulo
+    conteudo_html = MIMEText(html, "html") 
+    mensagem.attach(conteudo_html)
 
 
-# # Pegar o último elemento da lista
-# ultimo_elemento = lista_dados_final[-1]
 
-# # Template HTML com o último elemento incluído dinamicamente
-# html_template = f"""
-# <!DOCTYPE html>
-# <html lang="pt-br">
-# <head>
-#     <meta charset="UTF-8">
-#     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-#     <title>Commodities Tracking: Control Tower</title>
-# </head>
-# <body>
-#     <h1>Último Momento:</h1>
-#     <p>{ultimo_elemento}</p>
-# </body>
-# </html>
-# """
+
+    
