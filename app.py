@@ -1,3 +1,4 @@
+import os
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -79,22 +80,18 @@ df_trade_final = coleta_dados_commodities(trade_sopa)
 df_trade_final['Scraping Date'] = df_trade_final['Scraping Date'].astype(str)
 lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
 
-#conexão e envio da tabela final para o google sheets
-credencial=("/etc/secrets/api_google_sheets")
-conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
-API_acesso= gspread.authorize(conta_servico)
-table = API_acesso.open_by_key("google_sheets_id")
-sheet_id= table.worksheet("commodities")
-
-sheet_id.append_rows(lista_dados_final)
 
 #Configuração do envio do e-mail com html dinâmico
+EMAIL_KEY=os.environ["email_key"]
+BREVO_PASSWORD=os.environ["brevo_credential"]
+
 smtp_server = "smtp-relay.brevo.com"
 port = 587
-email = "email_key" 
-password = "brevo_credential"  
+email = "EMAIL_KEY" 
+password = "BREVO_PASSWORD"  
 
-remetente = "email_key" 
+
+remetente = "EMAIL_KEY"  
 destinatarios = ["professional_email_key","email_key"]  
 titulo = "Weekly Commodities Price Tracking Status"
 html = """
@@ -141,6 +138,7 @@ server = smtplib.SMTP(smtp_server, port)
 server.starttls() 
 server.login(email, password) 
 
+
 mensagem = MIMEMultipart()
 mensagem["From"] = remetente
 mensagem["To"] = ",".join(destinatarios)
@@ -150,4 +148,3 @@ mensagem.attach(conteudo_html)
 
 #Envio do e-mail 
 server.sendmail(remetente, destinatarios, mensagem.as_string())
-
