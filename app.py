@@ -81,6 +81,18 @@ df_trade_final['Scraping Date'] = df_trade_final['Scraping Date'].astype(str)
 lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist()
 
 
+#conexão e envio da tabela final para o google sheets
+API_GOOGLE_SHEETS=os.environ["api_google_sheets"]
+SHEET_ID=os.environ["google_sheets_id"]
+
+credencial=("API_GOOGLE_SHEETS")
+conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
+API_acesso= gspread.authorize(conta_servico)
+table = API_acesso.open_by_key("SHEET_ID")
+sheet_id= table.worksheet("commodities")
+
+sheet_id.append_rows(lista_dados_final)
+
 #Configuração do envio do e-mail com html dinâmico
 EMAIL_KEY=os.environ["email_key"]
 BREVO_PASSWORD=os.environ["brevo_credential"]
