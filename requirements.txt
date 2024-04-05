@@ -10,5 +10,3 @@ oauth2client
 google-oauth2-tool
 gspread
 secure-smtplib
-MIMEMultipart
-MIMEText 
