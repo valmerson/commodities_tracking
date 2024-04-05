@@ -83,7 +83,7 @@ lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist
 
 #conexão e envio da tabela final para o google sheets
 credencial="api_sheets_credencial.json"
-condeudo_credencial=os.environ['credencial_api_sheetd']
+condeudo_credencial=os.environ['credencial_api_sheet']
 with open(credencial, mode="w") as arquivo:
    arquivo.write(condeudo_credencial)
 conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
