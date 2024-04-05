@@ -82,13 +82,15 @@ lista_dados_final=[df_trade_final.columns.tolist()]+df_trade_final.values.tolist
 
 
 #conexão e envio da tabela final para o google sheets
-API_GOOGLE_SHEETS=os.environ["api_google_sheets"]
-SHEET_ID=os.environ["google_sheets_id"]
-
-credencial=(API_GOOGLE_SHEETS)
+credencial="api_sheets_credencial.json"
+condeudo_credencial=os.environ['credencial_api_sheetd']
+with open(credencial, mode="W") as arquivo:
+   arquivo.write(condeudo_credencial)
 conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
-API_acesso= gspread.authorize(conta_servico)
-table = API_acesso.open_by_key(SHEET_ID)
+
+
+API_acesso= gspread.authorize(credencial)
+table = API_acesso.open_by_key("1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E")
 sheet_id= table.worksheet("commodities")
 
 sheet_id.append_rows(lista_dados_final)
