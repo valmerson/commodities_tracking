@@ -89,7 +89,7 @@ with open(credencial, mode="w") as arquivo:
 conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
 
 
-API_acesso= gspread.authorize(credencial)
+API_acesso= gspread.authorize(conta_servico)
 table = API_acesso.open_by_key("1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E")
 sheet_id= table.worksheet("commodities")
 
