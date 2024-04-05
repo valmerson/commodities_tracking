@@ -9,6 +9,6 @@ randomheaders
 oauth2client
 google-oauth2-tool
 gspread
-smtplib
+secure-smtplib
 email.mime.multipart
 email.mime.text
