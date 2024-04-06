@@ -101,7 +101,7 @@ brevo_password=os.environ["EMAIL_PASSWORD"]
 smtp_server = "smtp-relay.brevo.com"
 port = 587
 email = "valmerson.sistema@gmail.com"
-password = "brevo_password"  
+password = brevo_password  
 
 
 remetente = "valmerson.sistema@gmail.com"  
