@@ -96,17 +96,16 @@ sheet_id= table.worksheet("commodities")
 sheet_id.append_rows(lista_dados_final)
 
 #Configuração do envio do e-mail com html dinâmico
-email_key=os.environ["email_key"]
-brevo_password=os.environ["brevo_credential"]
+brevo_password=os.environ["EMAIL_PASSWORD"]
 
 smtp_server = "smtp-relay.brevo.com"
 port = 587
-email = "email_key"
-password = "brevo_password"  
+email = "valmerson.sistema@gmail.com"
+password = "EMAIL_PASSWORD"  
 
 
-remetente = "email_key"  
-destinatarios = ["professional_email_key","email_key"]  
+remetente = "valmerson.sistema@gmail.com"  
+destinatarios = ["alvarojusten@gmail.com","valmerson.sistema@gmail.com","valmerson.silva@electrolux.com"]  
 titulo = "Weekly Commodities Price Tracking Status"
 html = """
 <!DOCTYPE html>
