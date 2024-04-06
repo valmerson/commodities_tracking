@@ -70,6 +70,9 @@ def coleta_dados_commodities(trade_sopa):
   })
   return df_trade_final
 
+@app.route('/')
+def index():
+    return 'Bem-vindo ao meu aplicativo Flask!'
 
 #Raspagem da fonte e organização do DF final e da lista com sublistas de referência para chamada no html dinâmico que será enviado por e-mail     
 @app.route('/enviar_email_commodities', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE'])
