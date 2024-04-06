@@ -71,7 +71,7 @@ def coleta_dados_commodities(trade_sopa):
 
 @app.route('/')
 def index():
-    return 'Bem-vindo ao meu aplicativo Flask!'
+    return 'Bem-vindo ao meu aplicativo Flask de Valmerson Silva: para ser redirecionado para o site correto do projeto vá para "https://commodities-tracking.onrender.com/enviar_email_commodities"'
 
 @app.route('/enviar_email_commodities', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE'])
 def enviar_email_commodities():
@@ -101,14 +101,16 @@ def enviar_email_commodities():
 
     #Configuração do envio do e-mail com html dinâmico
     brevo_password=os.environ["EMAIL_PASSWORD"]
+    mailing_list=os.environ["mailing_list"]
+    sender=os.environ["sender"]
 
     smtp_server = "smtp-relay.brevo.com"
     port = 587
-    email = "valmerson.sistema@gmail.com"
+    email = sender
     password = brevo_password  
 
-    remetente = "valmerson.sistema@gmail.com"  
-    destinatarios = ["alvarojusten@gmail.com","valmerson.sistema@gmail.com","valmerson.silva@electrolux.com"]  
+    remetente = sender  
+    destinatarios = mailing_list  
     titulo = "Weekly Commodities Price Tracking Status"
     html = """
     <!DOCTYPE html>
