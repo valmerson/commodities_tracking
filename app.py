@@ -96,16 +96,16 @@ sheet_id= table.worksheet("commodities")
 sheet_id.append_rows(lista_dados_final)
 
 #Configuração do envio do e-mail com html dinâmico
-EMAIL_KEY=os.environ["email_key"]
-BREVO_PASSWORD=os.environ["brevo_credential"]
+email_key=os.environ["email_key"]
+brevo_password=os.environ["brevo_credential"]
 
 smtp_server = "smtp-relay.brevo.com"
 port = 587
-email = EMAIL_KEY 
-password = BREVO_PASSWORD  
+email = "email_key"
+password = "brevo_password"  
 
 
-remetente = "EMAIL_KEY"  
+remetente = "email_key"  
 destinatarios = ["professional_email_key","email_key"]  
 titulo = "Weekly Commodities Price Tracking Status"
 html = """
@@ -136,7 +136,7 @@ html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selecte
 html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[2][0]}, <b>Currency/Unit: </b>{selected_values_mail[2][1]}, <b>Price: </b>{selected_values_mail[2][2]} </p>'
 html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[3][0]}, <b>Currency/Unit: </b>{selected_values_mail[3][1]}, <b>Price: </b>{selected_values_mail[3][2]} </p>'
 html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[4][0]}, <b>Currency/Unit: </b>{selected_values_mail[4][1]}, <b>Price: </b>{selected_values_mail[4][2]} </ul></p>'
-html += f'<p> <b>Source: </b> Trade Economics </p>'
+html += f'<p> <b>Source: </b> Trading Economics </p>'
 html += f'<p> To have access to the full data base including all the updated commodities price information, request access to: "https://docs.google.com/spreadsheets/d/1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E/edit#gid=0"</p>'
 html += f'<p>Kindest Regards</p>'
 html += f'<p>Valmerson Silva</p>'  
