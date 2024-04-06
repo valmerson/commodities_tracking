@@ -167,3 +167,6 @@ def enviar_email_commodities():
 
     #Envio do e-mail 
     server.sendmail(remetente, destinatarios, mensagem.as_string())
+    
+if __name__ == '__main__':
+    app.run(debug=True)
