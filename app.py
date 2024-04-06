@@ -72,102 +72,102 @@ def coleta_dados_commodities(trade_sopa):
 
 
 #Raspagem da fonte e organização do DF final e da lista com sublistas de referência para chamada no html dinâmico que será enviado por e-mail     
-@app.route('/enviar_email_commodities')
+@app.route('/enviar_email_commodities', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE'])
 def enviar_email_commodities():
-   trade_econo=requests.get('https://tradingeconomics.com/commodities', headers=randomheaders.LoadHeader())
-   if trade_econo.status_code ==200:
-    trade_html=trade_econo.content
-    trade_sopa=BeautifulSoup(trade_html)
-    print("A requisição foi concluída com sucesso")
-   else: 
-    print(f"A requisição retornou o erro: {trade_econo.status_code}") 
+ trade_econo=requests.get('https://tradingeconomics.com/commodities', headers=randomheaders.LoadHeader())
+ if trade_econo.status_code ==200:
+  trade_html=trade_econo.content
+  trade_sopa=BeautifulSoup(trade_html)
+  print("A requisição foi concluída com sucesso")
+ else: 
+  print(f"A requisição retornou o erro: {trade_econo.status_code}") 
 
-    df_trade_final = coleta_dados_commodities(trade_sopa)
-    df_trade_final['Scraping Date'] = df_trade_final['Scraping Date'].astype(str)
-    lista_dados_final=df_trade_final.values.tolist()
-
-
-    #conexão e envio da tabela final para o google sheets
-    credencial="api_sheets_credencial.json"
-    condeudo_credencial=os.environ['credencial_api_sheet']
-    with open(credencial, mode="w") as arquivo:
-      arquivo.write(condeudo_credencial)
-    conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
+  df_trade_final = coleta_dados_commodities(trade_sopa)
+  df_trade_final['Scraping Date'] = df_trade_final['Scraping Date'].astype(str)
+  lista_dados_final=df_trade_final.values.tolist()
 
 
-    API_acesso= gspread.authorize(conta_servico)
-    table = API_acesso.open_by_key("1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E")
-    sheet_id= table.worksheet("commodities")
-
-    sheet_id.append_rows(lista_dados_final)
-
-    #Configuração do envio do e-mail com html dinâmico
-    brevo_password=os.environ["EMAIL_PASSWORD"]
-
-    smtp_server = "smtp-relay.brevo.com"
-    port = 587
-    email = "valmerson.sistema@gmail.com"
-    password = brevo_password  
+  #conexão e envio da tabela final para o google sheets
+  credencial="api_sheets_credencial.json"
+  condeudo_credencial=os.environ['credencial_api_sheet']
+  with open(credencial, mode="w") as arquivo:
+    arquivo.write(condeudo_credencial)
+  conta_servico = ServiceAccountCredentials.from_json_keyfile_name(credencial)
 
 
-    remetente = "valmerson.sistema@gmail.com"  
-    destinatarios = ["alvarojusten@gmail.com","valmerson.sistema@gmail.com","valmerson.silva@electrolux.com"]  
-    titulo = "Weekly Commodities Price Tracking Status"
-    html = """
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Commodities Tracking</title>
-      </head>
-      <body>
-        <h1>Commodities Price tracking</h1>
-        <p>
-          The last data collection worked! Your most recent data is: 
-          
-    """
-    ultimo_elemento = lista_dados_final[-1][-1]
-    html += f'<p> <b> {ultimo_elemento} <b/> </p>'
+  API_acesso= gspread.authorize(conta_servico)
+  table = API_acesso.open_by_key("1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E")
+  sheet_id= table.worksheet("commodities")
 
-    selected_values_mail=[]
-    for lista in lista_dados_final:
-        selected_values=lista[1:4]
-        selected_values_mail.append(selected_values)
+  sheet_id.append_rows(lista_dados_final)
 
-    html += f' <ul> <p> See below the main up-to-date prices from the international commodities market:</p>'
-    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[0][0]}, <b>Currency/Unit: </b>{selected_values_mail[0][1]}, <b>Price: </b>{selected_values_mail[0][2]} </p>' 
-    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[1][0]}, <b>Currency/Unit: </b>{selected_values_mail[1][1]}, <b>Price: </b>{selected_values_mail[1][2]} </p>'
-    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[2][0]}, <b>Currency/Unit: </b>{selected_values_mail[2][1]}, <b>Price: </b>{selected_values_mail[2][2]} </p>'
-    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[3][0]}, <b>Currency/Unit: </b>{selected_values_mail[3][1]}, <b>Price: </b>{selected_values_mail[3][2]} </p>'
-    html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[4][0]}, <b>Currency/Unit: </b>{selected_values_mail[4][1]}, <b>Price: </b>{selected_values_mail[4][2]} </ul></p>'
-    html += f'<p> <b>Source: </b> Trading Economics </p>'
-    html += f'<p> To have access to the full data base including all the updated commodities price information, request access to: "https://docs.google.com/spreadsheets/d/1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E/edit#gid=0"</p>'
-    html += f'<p>Kindest Regards</p>'
-    html += f'<p>Valmerson Silva</p>'  
-    html += f'<p>BMI LATAM Team</p>'
+  #Configuração do envio do e-mail com html dinâmico
+  brevo_password=os.environ["EMAIL_PASSWORD"]
 
-    html += """
-          </p>
-      </body>
-    </html>
-    """
-
-    server = smtplib.SMTP(smtp_server, port) 
-    server.starttls() 
-    server.login(email, password) 
+  smtp_server = "smtp-relay.brevo.com"
+  port = 587
+  email = "valmerson.sistema@gmail.com"
+  password = brevo_password  
 
 
-    mensagem = MIMEMultipart()
-    mensagem["From"] = remetente
-    mensagem["To"] = ",".join(destinatarios)
-    mensagem["Subject"] = titulo
-    conteudo_html = MIMEText(html, "html") 
-    mensagem.attach(conteudo_html)
+  remetente = "valmerson.sistema@gmail.com"  
+  destinatarios = ["alvarojusten@gmail.com","valmerson.sistema@gmail.com","valmerson.silva@electrolux.com"]  
+  titulo = "Weekly Commodities Price Tracking Status"
+  html = """
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Commodities Tracking</title>
+    </head>
+    <body>
+      <h1>Commodities Price tracking</h1>
+      <p>
+        The last data collection worked! Your most recent data is: 
+        
+  """
+  ultimo_elemento = lista_dados_final[-1][-1]
+  html += f'<p> <b> {ultimo_elemento} <b/> </p>'
 
-    #Envio do e-mail 
-    server.sendmail(remetente, destinatarios, mensagem.as_string())
-    return 'Email enviado com sucesso!', 200
+  selected_values_mail=[]
+  for lista in lista_dados_final:
+      selected_values=lista[1:4]
+      selected_values_mail.append(selected_values)
+
+  html += f' <ul> <p> See below the main up-to-date prices from the international commodities market:</p>'
+  html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[0][0]}, <b>Currency/Unit: </b>{selected_values_mail[0][1]}, <b>Price: </b>{selected_values_mail[0][2]} </p>' 
+  html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[1][0]}, <b>Currency/Unit: </b>{selected_values_mail[1][1]}, <b>Price: </b>{selected_values_mail[1][2]} </p>'
+  html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[2][0]}, <b>Currency/Unit: </b>{selected_values_mail[2][1]}, <b>Price: </b>{selected_values_mail[2][2]} </p>'
+  html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[3][0]}, <b>Currency/Unit: </b>{selected_values_mail[3][1]}, <b>Price: </b>{selected_values_mail[3][2]} </p>'
+  html += f'<p> <span style="color: black">&bull;</span> <b>Element: </b> {selected_values_mail[4][0]}, <b>Currency/Unit: </b>{selected_values_mail[4][1]}, <b>Price: </b>{selected_values_mail[4][2]} </ul></p>'
+  html += f'<p> <b>Source: </b> Trading Economics </p>'
+  html += f'<p> To have access to the full data base including all the updated commodities price information, request access to: "https://docs.google.com/spreadsheets/d/1-9nbK5vvsNxUZavn6nV2rj5bj26f6gBNEAL67bLTy3E/edit#gid=0"</p>'
+  html += f'<p>Kindest Regards</p>'
+  html += f'<p>Valmerson Silva</p>'  
+  html += f'<p>BMI LATAM Team</p>'
+
+  html += """
+        </p>
+    </body>
+  </html>
+  """
+
+  server = smtplib.SMTP(smtp_server, port) 
+  server.starttls() 
+  server.login(email, password) 
+
+
+  mensagem = MIMEMultipart()
+  mensagem["From"] = remetente
+  mensagem["To"] = ",".join(destinatarios)
+  mensagem["Subject"] = titulo
+  conteudo_html = MIMEText(html, "html") 
+  mensagem.attach(conteudo_html)
+
+  #Envio do e-mail 
+  server.sendmail(remetente, destinatarios, mensagem.as_string())
+  return 'Email enviado com sucesso!', 200
     
 if __name__ == '__main__':
     app.run(debug=True)
