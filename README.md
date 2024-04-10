@@ -25,4 +25,5 @@ Redução significativa do tempo gasto na coleta e distribuição manual de dado
 Disponibilização de informações atualizadas e relevantes para tomada de decisão estratégica.
 Maior eficiência e precisão na análise de tendências de mercado e variações de preços.
 
+Site inicial: https://commodities-tracking.onrender.com/
 
